@@ -1,1 +1,15 @@
 \section{Introduction}
+
+\subsection{Abstract}
+
+In this research, we propose a method for identifying the age and gender of people based on the information that can be extracted from their browsing history.
+
+\subsection{Problem definition}
+
+We have to gather a sufficiently large database of websites and particular demographic information about them. The demographic attributes concerned in this paper include gender and age. We wish to acuratelly classify users as male or female, while the age prediction will be to define if they are either young (under 20) or older.
+
+\subsection{Data description}
+
+The two different age bins are a constrain imposed by the lack of abundend and relevant data to help in the classification task. Due to privacy concerns no website will reveal age or gender information about its user so we had to take a different approach to gathering data. One popular solution that we came across is voluntary form completion via websites where people type in the information themselves. In order to gather a large amount of data we chose a different approach. We crawl websites for content starting from popular social media pages of brands and navigating through their shared articles and links. We manually classify a brand or personality as being more likely to appeal to a certain category and then any subsequent content gathered from related links will be attributed to the same age and gender bin.
+\newline
+In order to scrape website\footnote{Technique of extracting information from a website} we are using Scrapy\footnote{http://scrapy.org} an open source framework. Facebook is a primary source of popular brands and celebrities from which we can initiate the website search for information. Facebook provides an API named Graph API which is the primary way of reading information from the platform. For example an endpoint such as |/{page-id}/feed| provides the feed of posts and links published by the page with the provided API. From there the scrape tool can navigate and gather information about the content at the specified URLs. Further information about the particular websites can be obtained from sources such as Quantcast\footnote{https://www.quantcast.com} or Alexa\footnote{http://alexa.com}.

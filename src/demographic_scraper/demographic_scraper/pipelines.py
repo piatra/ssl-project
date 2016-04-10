@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from models import Websites, db_connect, create_website_table
+from models import Websites, db_connect, create_db_tables
 
 
 class WebsiteDemographicPipeline(object):
@@ -8,7 +8,7 @@ class WebsiteDemographicPipeline(object):
         Initializes database connection and sessionmaker.
         """
         engine = db_connect()
-        create_website_table(engine)
+        create_db_tables(engine)
         self.Session = sessionmaker(bind=engine)
 
     def process_item(self, item, spider):

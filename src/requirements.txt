@@ -1,0 +1,6 @@
+scrapy==1.0.5
+SQLAlchemy
+beautifulsoup4>=4.0
+ipdb
+requests
+psycopg2

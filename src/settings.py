@@ -16,11 +16,11 @@ NEWSPIDER_MODULE = 'demographic_scraper.spiders'
 
 DATABASE = {
     'drivername': 'postgres',
-    'host': 'localhost',
+    'host': 'postgres',
     'port': '5432',
-    'username': 'root',
+    'username': 'postgres',
     'password': '',
-    'database': 'demographic'
+    'database': 'postgres'
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent

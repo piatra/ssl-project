@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+    datasetbuilder:
+        build: .
+        command: ["sleep", "100000000"]
+        volumes:
+            - .:/opt/dataset_builder
+        privileged: true
+    postgres:
+        image: postgres:9.1
+        expose:
+            - 5432

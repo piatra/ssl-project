@@ -55,7 +55,8 @@ def extract_words_from_url(url):
     stop_words = stopwords.words('english')
     for text in visible_texts:
         for word in re.findall(r"[\w']+", text):
-            if not word.isdigit() and word.lower() not in stop_words:
+            word = word.lower()
+            if not word.isdigit() and word not in stop_words:
                 words.append(word)
 
 

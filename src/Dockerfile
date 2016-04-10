@@ -10,3 +10,4 @@ RUN python -m nltk.downloader -d /usr/local/share/nltk_data stopwords
 
 RUN pip install -r requirements.txt
 
+ENV PYTHONPATH $PYTHONPATH:/opt/dataset_builder

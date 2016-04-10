@@ -6,6 +6,8 @@ services:
         command: ["sleep", "100000000"]
         volumes:
             - .:/opt/dataset_builder
+        links:
+            - postgres:postgres
         privileged: true
     postgres:
         image: postgres:9.1

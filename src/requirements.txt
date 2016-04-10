@@ -4,3 +4,4 @@ beautifulsoup4>=4.0
 ipdb
 requests
 psycopg2
+tweepy

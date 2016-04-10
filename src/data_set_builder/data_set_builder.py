@@ -3,7 +3,10 @@ import re
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 import requests
+from sqlalchemy.orm import sessionmaker
 
+
+from models import create_db_tables, db_connect, WebsitesContent
 from google import search
 
 MAX_RESULTS_LIMIT = 50
@@ -16,12 +19,14 @@ def get_queries():
     return ['cars']
 
 
-def index_query_data(query):
+def index_query_data(query, db_session):
     """Fetch google pages for a query and index their content. """
     words = []
     for url in search(query, stop=MAX_RESULTS_LIMIT):
         try:
-            words.extend(extract_words_from_url(url))
+            words = extract_words_from_url(url)
+            db_session.add(WebsitesContent(link=url, words=words))
+            db_session.commit()
         except:
             print url
 
@@ -65,10 +70,17 @@ def main():
      - get demographics for page
      - store demographics
     """
+    engine = db_connect()
+    create_db_tables(engine)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
     quereies = get_queries()
 
     for query in quereies:
-        index_query_data(query)
+        index_query_data(query, session)
+
+    session.close()
 
 
 if __name__ == '__main__':

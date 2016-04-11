@@ -26,8 +26,10 @@ class Websites(DeclarativeBase):
 
     id = Column(Integer, primary_key=True)
     link = Column('link', String, nullable=True)
-    male_ratio = Column('male_ratio', Float, nullable=True)
-    female_ratio = Column('female_ratio', Float, nullable=True)
+    male_ratio_alexa = Column('male_ratio_alexa', Float, nullable=True)
+    female_ratio_alexa = Column('female_ratio_alexa', Float, nullable=True)
+    male_ratio_quantcast = Column('male_ratio_quantcast', Float, nullable=True)
+    female_ratio_quantcast = Column('female_ratio_quantcast', Float, nullable=True)
 
 
 class WebsitesContent(DeclarativeBase):

@@ -5,3 +5,6 @@ ipdb
 requests
 psycopg2
 tweepy
+sklearn
+numpy
+scipy

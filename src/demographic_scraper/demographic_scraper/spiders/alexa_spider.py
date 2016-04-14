@@ -3,7 +3,7 @@ from scrapy import Spider
 import re
 from urlparse import urlparse
 from scrapy.selector import Selector
-from demographic_scraper.items import DemographicScraperItem
+from demographic_scraper.demographic_scraper.items import DemographicScraperItem
 
 class AlexaSpider(Spider):
     name = "alexa"

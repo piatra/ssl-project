@@ -70,7 +70,7 @@ DATABASE = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'demographic_scraper.pipelines.WebsiteDemographicPipeline': 300,
+   'demographic_scraper.demographic_scraper.pipelines.WebsiteDemographicPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

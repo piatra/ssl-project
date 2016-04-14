@@ -5,11 +5,26 @@ from nltk.corpus import stopwords
 import requests
 from sqlalchemy.orm import sessionmaker
 
+# scraping modules
+from scrapy.crawler import CrawlerProcess
+from demographic_scraper.demographic_scraper.spiders.alexa_spider import AlexaSpider
+from scrapy.utils.project import get_project_settings
 
 from models import create_db_tables, db_connect, WebsitesContent
 from google import search
 
 MAX_RESULTS_LIMIT = 50
+
+
+def crawl_for_demographics(url):
+    """Fetch demographics from (currently just) Alexa.com"""
+    settings = get_project_settings()
+    settings.set('ITEM_PIPELINES',
+                 {'demographic_scraper.demographic_scraper.pipelines.WebsiteDemographicPipeline': 300})
+    process = CrawlerProcess(settings)
+
+    process.crawl(AlexaSpider, url=url)
+    process.start()
 
 
 def get_queries():

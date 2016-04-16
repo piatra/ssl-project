@@ -1,5 +1,5 @@
 import re
-
+import time
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 import requests
@@ -13,7 +13,7 @@ from scrapy.utils.project import get_project_settings
 from models import create_db_tables, db_connect, WebsitesContent
 from google import search
 
-MAX_RESULTS_LIMIT = 75
+MAX_RESULTS_LIMIT = 25
 
 
 def crawl_for_demographics(url):
@@ -97,9 +97,14 @@ def main():
     session = Session()
 
     quereies = get_queries()
-
     for query in quereies:
-        index_query_data(query, session)
+        print query
+        try:
+            index_query_data(query, session)
+        except Exception as e:
+            print 'Failed to fetch query: %s' % query
+        time.sleep(60)
+
 
     session.close()
 

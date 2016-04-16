@@ -10,9 +10,10 @@ from demographic_scraper.demographic_scraper.items import DemographicScraperItem
 class QuantcastSpider(Spider):
     name = "quantcast"
 
-    def __init__(self, url="500px.com", **kw):
+    def __init__(self, url="500px.com", db_session=None, **kw):
         super(Spider, self).__init__(**kw)
         self.request_url = url
+        self.db_session = db_session
         self.url = "https://www.quantcast.com/" + url
         self.allowed_domains = [re.sub(r'^www\.', '', urlparse(self.url).hostname)]
 

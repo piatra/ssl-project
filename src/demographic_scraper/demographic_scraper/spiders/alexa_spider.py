@@ -8,9 +8,10 @@ from demographic_scraper.demographic_scraper.items import DemographicScraperItem
 class AlexaSpider(Spider):
     name = "alexa"
 
-    def __init__(self, url="500px.com", **kw):
+    def __init__(self, url="500px.com", db_session=None, **kw):
         super(Spider, self).__init__(**kw)
         self.request_url = url
+        self.db_session = db_session
         self.url = "http://www.alexa.com/siteinfo/" + url
         self.allowed_domains = [re.sub(r'^www\.', '', urlparse(self.url).hostname)]
 
@@ -25,8 +26,13 @@ class AlexaSpider(Spider):
             value = bar.css("span::attr(style)").extract()[0]
             value = int(re.search(r'\d+', value).group())
             values.append(value)
-        male_ratio = float(values[0] + values[1]) / sum(values)
-        female_ratio = float(values[2] + values[3]) / sum(values)
+        if sum(values) == 0:
+            male_ratio = 0
+            female_ratio = 0
+        else:
+            male_ratio = float(values[0] + values[1]) / sum(values)
+            female_ratio = float(values[2] + values[3]) / sum(values)
+
         return DemographicScraperItem(link=self.request_url,
                                       male_ratio_alexa=male_ratio,
                                       female_ratio_alexa=female_ratio)

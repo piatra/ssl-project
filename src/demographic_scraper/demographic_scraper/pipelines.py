@@ -7,16 +7,16 @@ class WebsiteDemographicPipeline(object):
         """
         Initializes database connection and sessionmaker.
         """
-        engine = db_connect()
-        create_db_tables(engine)
-        self.Session = sessionmaker(bind=engine)
+        #engine = db_connect()
+        #create_db_tables(engine)
+        #self.Session = sessionmaker(bind=engine)
 
     def process_item(self, item, spider):
         """Save websites in the database.
         This method is called for every item pipeline component.
 
         """
-        session = self.Session()
+        session = spider.db_session
         entry = Websites(**item)
         print "Process ITEM"
         print entry

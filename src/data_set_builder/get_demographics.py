@@ -5,7 +5,7 @@ from scrapy.crawler import CrawlerProcess, Crawler
 from demographic_scraper.demographic_scraper.spiders.alexa_spider import AlexaSpider
 from scrapy.utils.project import get_project_settings
 
-from models import db_connect, WebsitesContent
+from models import db_connect, WebsitesContent, Websites
 
 
 def main():
@@ -25,10 +25,12 @@ def main():
 
     process = CrawlerProcess(settings)
     for website in session.query(WebsitesContent).all():
-        url = website.link
-        print website.link
-        AlexaSpider.name = url
-        process.crawl(AlexaSpider, url=url, db_session=session)
+        demographic = list(session.query(Websites).filter_by(link=website.link))
+        if len(demographic) is 0:
+            url = website.link
+            print website.link
+            AlexaSpider.name = url
+            process.crawl(AlexaSpider, url=url, db_session=session)
     process.start()
     process.stop()
 

@@ -36,6 +36,7 @@ def get_queries():
         queries = f.readlines()
 
     queries = [q.strip() for q in queries]
+    queries.reverse()
     return queries
 
 

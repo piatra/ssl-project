@@ -26,11 +26,9 @@ class HistoryParser():
         visited = {}
         for entry in data:
             url = urlparse.urlparse(entry["url"]).netloc
-            try:
-                visited[url] = visited[url] + entry["visitCount"]
-            except:
-                visited[url] = entry["visitCount"]
+            if len(url.split(".")) > 2: # some links are actually browser addons addresses
+                try:
+                    visited[url] = visited[url] + entry["visitCount"]
+                except:
+                    visited[url] = entry["visitCount"]
         return visited
-
-# hp = HistoryParser("../../example/andrei_history.json")
-# hp.countVisitedPages()

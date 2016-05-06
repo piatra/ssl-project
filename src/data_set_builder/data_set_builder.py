@@ -66,6 +66,9 @@ def extract_words_from_url(url):
         value = element.encode('utf-8')
         return not value.isspace()
 
+    if url[0:4] is not "http":
+        url = "http://" + url
+
     html = requests.get(url, verify=False).content
     soup = BeautifulSoup(html, 'html.parser')
     texts = soup.findAll(text=True)

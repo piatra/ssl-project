@@ -4,12 +4,14 @@ from sqlalchemy.orm import sessionmaker
 
 from models import db_connect, WebsitesContent, Websites
 from data_set_builder import extract_words_from_url
+from parse_user_history.history_parser import HistoryParser
 
 CLASSES = {
     'male': 0,
     'female': 1,
 }
 
+PRODUCTION = True
 
 def bag_of_words(clean_train_reviews):
     """
@@ -19,7 +21,7 @@ def bag_of_words(clean_train_reviews):
 
     vectorizer = CountVectorizer(analyzer = "word",    \
                                  tokenizer = None,     \
-                                 ngram_range = (1, 3), \
+                                 ngram_range = (1, 2), \
                                  preprocessor = None,  \
                                  stop_words = None,    \
                                  max_features = 600)
@@ -30,7 +32,8 @@ def bag_of_words(clean_train_reviews):
 
 
 def forrest_classifier(train_data_features, classes):
-    forest = RandomForestClassifier()
+    forest = RandomForestClassifier(n_estimators=600, \
+                                    max_features="sqrt")
 
     return forest.fit(train_data_features, classes)
 
@@ -46,7 +49,8 @@ def classify(training_data, training_classes, test_data, test_data_classes):
 
 
 def get_history():
-    return ['https://www.cars.com']
+    hp = HistoryParser("../parse_user_history/andrei_history.json")
+    return hp.countVisitedPages().keys()
 
 
 def main():
@@ -75,12 +79,12 @@ def main():
     test_set = []
     test_set_classes = []
 
-    if False:
+    if PRODUCTION:
         for url in get_history():
             words = extract_words_from_url(url)
-            words = ' '.join(words)
-
-            test_set.append(words)
+            if len(words) > 50: # Skip 404/403 pages.
+                words = ' '.join(words)
+                test_set.append(words)
     else:
         l = len(training_set)
         print "Training set has %i items" % l

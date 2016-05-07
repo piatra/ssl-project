@@ -1,6 +1,5 @@
 import os.path
 import json
-import urlparse
 
 ACCEPTED_FILETYPES = [
         'json',
@@ -15,17 +14,25 @@ class HistoryParser():
             raise Exception("Filetype not accepted.")
 
         self.path = path
+        self.unique = None
 
     def _parse(self):
         with open(self.path) as data_file:
             data = json.load(data_file)
         return data
 
-    def countVisitedPages(self):
+    def get_frequency(self, url):
+        if self.unique is None:
+            self.unique = self.unique_links()
+
+        return float(self.unique[url]) / sum(self.unique.values())
+
+
+    def unique_links(self):
         data = self._parse()
         visited = {}
         for entry in data:
-            url = urlparse.urlparse(entry["url"]).netloc
+            url = entry["url"]
             if len(url.split(".")) > 2: # some links are actually browser addons addresses
                 try:
                     visited[url] = visited[url] + entry["visitCount"]

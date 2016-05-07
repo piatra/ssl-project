@@ -55,6 +55,7 @@ def index_query_data(query, db_session):
 
 
 def extract_words_from_url(url):
+    print url
     """Use BeautifulSoup to extract visible text from a web page. """
     def visible(element):
         """Method used to filter visible text elements. """
@@ -65,9 +66,6 @@ def extract_words_from_url(url):
 
         value = element.encode('utf-8')
         return not value.isspace()
-
-    if url[0:4] is not "http":
-        url = "http://" + url
 
     html = requests.get(url, verify=False).content
     soup = BeautifulSoup(html, 'html.parser')

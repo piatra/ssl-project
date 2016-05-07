@@ -12,6 +12,7 @@ CLASSES = {
 }
 
 PRODUCTION = True
+hp = HistoryParser("../parse_user_history/andrei_history.json")
 
 def bag_of_words(clean_train_reviews):
     """
@@ -43,15 +44,14 @@ def classify(training_data, training_classes, test_data, test_data_classes):
     classifier = forrest_classifier(features_train_data, training_classes)
 
     if len(test_data_classes) is 0:
-        return classifier.predict(vectorizer.transform(test_data))
+        return classifier.predict_proba(vectorizer.transform(test_data))
+        # return classifier.predict(vectorizer.transform(test_data))
     else:
         print classifier.score(vectorizer.transform(test_data), test_data_classes)
 
 
 def get_history():
-    hp = HistoryParser("../parse_user_history/andrei_history.json")
-    return hp.countVisitedPages().keys()
-
+    return hp.unique_links().keys()
 
 def main():
     """Build training set and clasify history. """
@@ -78,11 +78,13 @@ def main():
 
     test_set = []
     test_set_classes = []
+    crawled_urls = []
 
     if PRODUCTION:
         for url in get_history():
             words = extract_words_from_url(url)
-            if len(words) > 50: # Skip 404/403 pages.
+            if len(words) > 20: # Skip 404/403 pages.
+                crawled_urls.append(url)
                 words = ' '.join(words)
                 test_set.append(words)
     else:
@@ -94,7 +96,30 @@ def main():
         training_set = training_set[0:cut]
         labels = labels[0:cut]
 
-    print classify(training_set, labels, test_set, test_set_classes)
+    probabilities = classify(training_set, labels, test_set, test_set_classes)
+    # probabilities :: [[male_confidence, female_confidence]]
+    # diff between male_confidence and female_confidence.
+    # if more likely to be male value will be positive, negative for female.
+    gender_prob = [v[0] - v[1] for v in probabilities]
+
+    results = []
+    for idx, url in enumerate(crawled_urls):
+        r = (gender_prob[idx],
+             hp.get_frequency(url), # no of times page was visited
+             gender_prob[idx] * hp.get_frequency(url),
+             url)
+        results.append(r)
+        print r
+
+    prediction = [0, 0]
+    for x in results:
+        if x[2] > 0:
+            prediction[0] = prediction[0] + x[2]
+        else:
+            prediction[1] = prediction[1] + abs(x[2]) # female_confidence is neg
+
+    # normalize and print the prediction
+    print [float(x) / sum(prediction) for x in prediction]
 
 
 if __name__ == '__main__':

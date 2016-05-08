@@ -5,26 +5,10 @@ from nltk.corpus import stopwords
 import requests
 from sqlalchemy.orm import sessionmaker
 
-# scraping modules
-from scrapy.crawler import CrawlerProcess
-from demographic_scraper.demographic_scraper.spiders.alexa_spider import AlexaSpider
-from scrapy.utils.project import get_project_settings
-
 from models import create_db_tables, db_connect, WebsitesContent
 from google import search
 
 MAX_RESULTS_LIMIT = 25
-
-
-def crawl_for_demographics(url):
-    """Fetch demographics from (currently just) Alexa.com"""
-    settings = get_project_settings()
-    settings.set('ITEM_PIPELINES',
-                 {'demographic_scraper.demographic_scraper.pipelines.WebsiteDemographicPipeline': 300})
-    process = CrawlerProcess(settings)
-
-    process.crawl(AlexaSpider, url=url)
-    process.start()
 
 
 def get_queries():
@@ -54,10 +38,7 @@ def index_query_data(query, db_session):
     return words
 
 
-def extract_words_from_url(url):
-    print url
-    """Use BeautifulSoup to extract visible text from a web page. """
-    def visible(element):
+def visible(element):
         """Method used to filter visible text elements. """
         if element.parent.name in ['style', 'script', '[document]', 'head', 'link']:
             return False
@@ -67,6 +48,9 @@ def extract_words_from_url(url):
         value = element.encode('utf-8')
         return not value.isspace()
 
+def extract_words_from_url(url):
+    print url
+    """Use BeautifulSoup to extract visible text from a web page. """
     html = requests.get(url, verify=False).content
     soup = BeautifulSoup(html, 'html.parser')
     texts = soup.findAll(text=True)

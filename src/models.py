@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Float, Integer, String
+from sqlalchemy import create_engine, Column, Float, Integer, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine.url import URL
@@ -33,9 +33,19 @@ class Websites(DeclarativeBase):
 
 
 class WebsitesContent(DeclarativeBase):
-    """Sqlalchemy websites model"""
+    """Sqlalchemy websites model for storing words"""
     __tablename__ = "websites_content"
 
     id = Column(Integer, primary_key=True)
     link = Column('link', String, nullable=False)
     words = Column('words', ARRAY(String), nullable=False)
+
+
+class WebsitesPhrases(DeclarativeBase):
+    """Sqlalchemy websites model for storing phrases"""
+    __tablename__ = "websites_phrases"
+
+    id = Column(Integer, primary_key=True)
+    link = Column('link', String, nullable=False)
+    phrases = Column('content', ARRAY(Text), nullable=False)
+

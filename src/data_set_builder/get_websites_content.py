@@ -26,7 +26,6 @@ def main():
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    import ipdb; ipdb.set_trace()
     for website in session.query(Websites).all():
         url = website.link
         try:

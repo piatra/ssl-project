@@ -7,6 +7,8 @@ ADD requirements.txt .
 RUN pip install nltk
 # Get NLTK data
 RUN python -m nltk.downloader -d /usr/local/share/nltk_data stopwords
+RUN python -m nltk.downloader -d /usr/local/share/nltk_data punkt
+RUN python -m nltk.downloader -d /usr/local/share/nltk_data wordnet
 
 RUN pip install -r requirements.txt
 

@@ -10,7 +10,7 @@ from scrapy.crawler import CrawlerProcess
 from demographic_scraper.demographic_scraper.spiders.alexa_spider import AlexaSpider
 from scrapy.utils.project import get_project_settings
 
-from models import create_db_tables, db_connect, WebsitesContent
+from models import create_db_tables, db_connect, WebsitesContent, WebsitesCache
 from google import search
 
 MAX_RESULTS_LIMIT = 25
@@ -54,8 +54,14 @@ def index_query_data(query, db_session):
     return words
 
 
-def extract_words_from_url(url):
+def extract_words_from_url(url, db_session=False):
     print url
+
+    if db_session is not False:
+        result = list(db_session.query(WebsitesCache).filter_by(link=url))
+        if len(result):
+            return result[0].words
+
     """Use BeautifulSoup to extract visible text from a web page. """
     def visible(element):
         """Method used to filter visible text elements. """
@@ -80,6 +86,14 @@ def extract_words_from_url(url):
             word = word.lower()
             if not word.isdigit() and word not in stop_words:
                 words.append(word)
+
+    # Do we want the results cached?
+    if db_session is not False:
+        try:
+            db_session.add(WebsitesCache(link=url, words=words))
+            db_session.commit()
+        except:
+            print "Failed to add " + url
 
 
     return words

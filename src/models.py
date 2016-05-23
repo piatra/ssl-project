@@ -39,3 +39,16 @@ class WebsitesContent(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     link = Column('link', String, nullable=False)
     words = Column('words', ARRAY(String), nullable=False)
+
+
+# Cache scraping results to be used between different classifiers without
+# having to fetch the information multiple times.
+class WebsitesCache(DeclarativeBase):
+    """Sqlalchemy websites model"""
+    __tablename__ = "websites_cache"
+
+    id = Column(Integer, primary_key=True)
+    link = Column('link', String, nullable=False)
+    words = Column('words', ARRAY(String), nullable=False)
+    male_ratio_alexa = Column('male_ratio_alexa', Float, nullable=True)
+    female_ratio_alexa = Column('female_ratio_alexa', Float, nullable=True)

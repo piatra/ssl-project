@@ -1,3 +1,7 @@
+import re
+
+from parsel import Selector
+import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sqlalchemy.orm import sessionmaker
@@ -13,6 +17,27 @@ CLASSES = {
 
 PRODUCTION = True
 hp = HistoryParser("../parse_user_history/andrei_history.json")
+
+
+def get_alexa_demographics(url):
+    url = "http://www.alexa.com/siteinfo/" + url
+    response = requests.get(url)
+
+    # We need the decode part because Selector expects unicode.
+    selector = Selector(response.content.decode('utf-8'))
+    bars = selector.css("#demographics-content .demo-col1 .pybar-bg")
+    values = []
+    for bar in bars:
+        value = bar.css("span::attr(style)").extract()[0]
+        value = int(re.search(r'\d+', value).group())
+        values.append(value)
+
+    male_ratio = 0
+    female_ratio = 0
+    if sum(values) == 0:
+        return male_ratio, female_ratio
+
+    return float(values[0] + values[1]) / sum(values), float(values[2] + values[3]) / sum(values)
 
 def bag_of_words(clean_train_reviews):
     """
@@ -80,8 +105,9 @@ def main():
     test_set_classes = []
     crawled_urls = []
 
+    history = get_history()
     if PRODUCTION:
-        for url in get_history():
+        for url in history:
             words = extract_words_from_url(url)
             if len(words) > 20: # Skip 404/403 pages.
                 crawled_urls.append(url)
@@ -104,23 +130,32 @@ def main():
 
     results = []
     for idx, url in enumerate(crawled_urls):
+        alexa_male_confidence, alexa_female_confidence = get_alexa_demographics(url)
         r = (gender_prob[idx],
              hp.get_frequency(url), # no of times page was visited
              gender_prob[idx] * hp.get_frequency(url),
-             url)
+             url,
+             alexa_male_confidence,
+             alexa_female_confidence)
         results.append(r)
         print r
 
     prediction = [0, 0]
+    alexa_result = [0, 0]
     for x in results:
         if x[2] > 0:
-            prediction[0] = prediction[0] + x[2]
+            prediction[0] += x[2]
+            alexa_result[0] += x[4]
         else:
-            prediction[1] = prediction[1] + abs(x[2]) # female_confidence is neg
+            prediction[1] += abs(x[2]) # female_confidence is neg
+            alexa_result[0] += x[4]
 
     # normalize and print the prediction
+    print 'Prediction:'
     print [float(x) / sum(prediction) for x in prediction]
 
+    print 'Alexa:'
+    print [float(x) / sum(alexa_result) for x in alexa_result]
 
 if __name__ == '__main__':
     main()

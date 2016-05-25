@@ -1,0 +1,21 @@
+\section{Second Approach}
+
+This section corresponds to several iterations over the first solution which tried to solve the problems stated in the previous chapter.
+
+\subsection{Part of Speech Tagging}
+
+The first problem we tackled was that the "Bag of Words" model does not cover relations between words. For this, we tried to find a link between the gender and parts of speech used on the websites they visit. The tagging was done using the "nltk" Python library.
+
+We ran a set of experiments on a sample of websites which were visited by a gender category with a bigger margin concluding that there is no relation between the parts of speech and the gender. For example the aggregated counts for ten male and ten female tagged websites are(the most popular):
+
+Male:
+\begin{lstlisting} 
+{'PRP$': 81, 'VBG': 143, 'VBD': 86, '``': 42, 'VBN': 191,  'VBP': 156, 'WDT': 27, 'JJ': 876}
+\end{lstlisting}
+
+Female:
+\begin{lstlisting}
+{'PRP$': 446, 'VBG': 454, 'VBD': 631, '``': 257, 'VBN': 406,'VBP': 724, 'WDT': 98, 'JJ': 2014}
+ \end{lstlisting}
+
+The only observation we took from these experiments is that websites visited by females have more words.

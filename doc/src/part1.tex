@@ -1,0 +1,35 @@
+\section{First Approach}
+
+This section will cover our first approach of solving the gender and age identification problem based on browsing history.In the previous chapter we presented a set of solutions for the same problem. What they all have in common was that they started from a data set which we didn't have. Considering this, the first step we took was to find a way to build a relevant data set.
+
+\subsection{Building The Data Set}
+
+The first approach of building a data set was to use social media. We thought about identifying a set of Facebook Pages which had as target well determined gender and age groups. After we got the set of pages we will use Graph API to get all the posts from that page which contain a link and index with the page gender and age group. After we got a big enough web sites database we planned to open each link and index its content and possibly a set of attributes(i.e. pictures, videos etc.). This approach has several problems:
+\begin{itemize}
+\item Pages use to share links from the same sources
+\item It is hard to know the age and gender group for a Facebook page (information is available only to the page owner)
+\item Pages post frequently so there are problems with rate limiting
+\end{itemize}
+ 
+The above limitations are an important deal breaker. We kept the idea of tying the user gender and age with the content of the webpages they visited but we needed another way to collect data. So, the second approach was trying to crowdsource our data set. We set up a form in which we asked for gender, age group and browsing history. We shared the form on Social Media trying to reach a large group of people with a high degree of diversity. This attempt was also a failure because only a few people (around 10) submitted the form.
+
+After the second failure we decided the single and most important requirement for our solution: the data we collect should be publicly available. Considering this we looked into Twitter, one of the biggest providers of public data. Twitter has an open streaming API from which everyone can consume 1\% of the whole Twitter data. One problem is that we didn't have any demographic information for the authors. Our approach was to use the data from streaming to compute a list of "hot" topics about which people are discussing on Social Media. The solution of computing the topics is based on frequency of words in English after removing the stop words. Our assumption is that people do a lot of Google searches around those topics and the search results appear more often in user's browsing history.  We let the consumer run for several ours and this is a sample of words we selected: "superstar", "facebook", "fight", "trump", "radiodisney", "day", "say", "sleep". Usually, the most common words are related to recent events (i.e. presidential elections, a box fight) but there are some general words which can help with our solution. When the list was computed we went over it by hand and removed terms which will lead to pornography or other parts of the Internet that can cause problems.
+
+With the cleaned up list we set up a pipeline which iterates over the list, initiates a Google Search, and for each result follows three steps:
+\begin{figure}[h]
+\includegraphics[scale=0.4]{DataSetPipeline.png}
+\centering
+\caption{Dataset Building Pipeline}
+\end{figure}
+
+The first step opens the page and gets all the text from it. The text is indexed as a list of words after English stop words were removed. The second step makes a request to Alexa to get gender information and writes it in a different table in the database. The last step gets age and gender information from Quantcast and indexes it in the same table as the second step. All the indexing steps have some limits in the number of requests we can make (mostly because the services don't expose a public API and we used scraping) but they were high enough.
+
+After the process was done we stored around 1400 websites. The problem with the data set was that Quantcast information was missing for most of the websites without any error being logged. A sample of the data set entries were tested by hand in Quantcast and there were indeed no results. Because of this problem we dropped the age identification (Alexa provides only gender analytics).
+
+\subsection{Classification}
+
+Gender identification is done with a solution based on the "Bag of Words" model. This model is based on an orderless document representation and uses words frequencies as features. Using this method our dataset is used to build a matrix with a row for each website and a column for each unique word used on all websites. The value of a cell is the frequency of the word a website. As expected, the matrix grows very fast. Implementation use sparse matrixes (with the assumption that there are not a lot of common words between websites) but we limited the number of features or columns to 2000 in order avoid memory errors. For building the features we used the "CountVectorizer" class provided by the "sklearn" Python package. The features are used to train a Random Forest classifier with the initial number of 100 trees.
+
+We get a gender probability for each history by getting the content from each website, transforming it using the vectorizer and computing the gender using the classifier. After all websites were labeled an average probability for each gender is computed. At this point of the implementation we don't have a good training set so we can't provide a score.
+
+There are several limitations for this approach: we don't consider relations between words, computing the average might not yield the correct result or the classifying method is not precise enough. An analyse of these problems is presented in the section.
